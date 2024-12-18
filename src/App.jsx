@@ -1,5 +1,6 @@
 import { onMount } from "solid-js";
-import * as faceapi from "face-api.js";
+import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
+// import * as tf from '@tensorflow/tfjs';
 
 import "./App.css";
 
@@ -9,6 +10,13 @@ const App = () => {
 
   onMount(() => {
     (async () => {
+      const t0 = new Date();
+      // wasm.setWasmPath('./model/tfjs-backend-wasm.wasm');
+      // faceapi.tf.setBackend('wasm')
+      // faceapi.env.getEnv()
+      await faceapi.tf.ready();
+      console.log("Warmup: ", (Date.now() - t0) / 1000);
+
       await loadModel();
       await webCam();
       await detectionLoop();
@@ -22,6 +30,7 @@ const App = () => {
       faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
       faceapi.nets.faceLandmark68Net.loadFromUri("./models"),
     ]);
+    console.log("Backend: ", faceapi.tf.getBackend());
   }
 
   async function webCam() {
@@ -56,20 +65,20 @@ const App = () => {
         )
         .withFaceLandmarks();
       console.log("FPS: ", 1000 / (performance.now() - t0));
-      const landmarks = detections.landmarks;
-      const mouthTop = landmarks.positions[62];
-      const mouthBottom = landmarks.positions[66];
-      const mouthDistance = mouthBottom.y - mouthTop.y;
+      const landmarks = detections?.landmarks ?? {};
+      const mouthTop = landmarks?.positions[62];
+      const mouthBottom = landmarks?.positions[66];
+      const mouthDistance = mouthBottom?.y - mouthTop?.y;
 
       if (mouthDistance > 30) {
         if (startTime == null) {
           startTime = Date.now();
         }
         const elapsedTime = (Date.now() - startTime) / 1000;
-        console.log(elapsedTime);
+        console.log("Remaining time: ",elapsedTime);
 
         if (elapsedTime >= 2) {
-          videoRef.pause()
+          videoRef.pause();
           return detections;
         }
       }
