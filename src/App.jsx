@@ -60,21 +60,23 @@ const App = () => {
         )
         .withFaceLandmarks();
       console.log("FPS: ", 1000 / (performance.now() - t0));
-      const landmarks = detections?.landmarks ?? {};
-      const mouthTop = landmarks?.positions[62];
-      const mouthBottom = landmarks?.positions[66];
-      const mouthDistance = mouthBottom?.y - mouthTop?.y;
-
-      if (mouthDistance > 30) {
-        if (startTime == null) {
-          startTime = Date.now();
-        }
-        const elapsedTime = (Date.now() - startTime) / 1000;
-        console.log("Remaining time: ", elapsedTime);
-
-        if (elapsedTime >= 2) {
-          videoRef.pause();
-          return detections;
+      if(detections){
+        const landmarks = detections?.landmarks;
+        const mouthTop = landmarks?.positions[62];
+        const mouthBottom = landmarks?.positions[66];
+        const mouthDistance = mouthBottom?.y - mouthTop?.y;
+  
+        if (mouthDistance > 30) {
+          if (startTime == null) {
+            startTime = Date.now();
+          }
+          const elapsedTime = (Date.now() - startTime) / 1000;
+          console.log("Remaining time: ", elapsedTime);
+  
+          if (elapsedTime >= 2) {
+            videoRef.pause();
+            return detections;
+          }
         }
       }
       return new Promise((resolve) => {
