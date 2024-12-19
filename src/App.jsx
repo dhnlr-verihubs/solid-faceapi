@@ -6,12 +6,13 @@ import "./App.css";
 const App = () => {
   let videoRef;
   let startTime;
+  let warmupT0;
+  let firstTime;
 
   onMount(() => {
     (async () => {
-      const t0 = new Date();
+      warmupT0 = new Date();
       await faceapi.tf.ready();
-      console.log("Warmup: ", (Date.now() - t0) / 1000);
 
       await loadModel();
       await webCam();
@@ -62,6 +63,11 @@ const App = () => {
         .withFaceLandmarks();
       console.log("FPS: ", 1000 / (performance.now() - t0));
       if (detections) {
+        if (!firstTime) {
+          console.log("Warmup: ", (Date.now() - warmupT0) / 1000);
+          firstTime = true;
+        }
+
         const landmarks = detections?.landmarks ?? {};
         const mouthTop = landmarks?.positions[62];
         const mouthBottom = landmarks?.positions[66];
