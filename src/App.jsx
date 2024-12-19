@@ -1,6 +1,7 @@
 import { onMount } from "solid-js";
-import * as faceapi from "@vladmandic/face-api/dist/face-api.esm.js";
-// import * as tf from '@tensorflow/tfjs';
+import * as faceapi from "@vladmandic/face-api/dist/face-api.esm-nobundle.js";
+import * as tf from "@tensorflow/tfjs";
+import * as wasm from "@tensorflow/tfjs-backend-wasm";
 
 import "./App.css";
 
@@ -11,10 +12,11 @@ const App = () => {
   onMount(() => {
     (async () => {
       const t0 = new Date();
-      // wasm.setWasmPath('./model/tfjs-backend-wasm.wasm');
-      // faceapi.tf.setBackend('wasm')
-      // faceapi.env.getEnv()
-      await faceapi.tf.ready();
+      wasm.setWasmPaths(
+        "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/"
+      );
+      await tf.setBackend("wasm");
+      await tf.ready();
       console.log("Warmup: ", (Date.now() - t0) / 1000);
 
       await loadModel();
@@ -30,7 +32,7 @@ const App = () => {
       faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
       faceapi.nets.faceLandmark68Net.loadFromUri("./models"),
     ]);
-    console.log("Backend: ", faceapi.tf.getBackend());
+    console.log("Backend: ", faceapi.tf.getBackend(), tf.getBackend());
   }
 
   async function webCam() {
@@ -53,33 +55,40 @@ const App = () => {
 
   async function detectionLoop() {
     // main detection loop
-    if (!videoRef.paused) {
+    if (
+      !videoRef.paused &&
+      !!faceapi.nets.tinyFaceDetector.params &&
+      !!faceapi.nets.faceLandmark68Net.params
+    ) {
       const t0 = performance.now();
       const detections = await faceapi
         .detectSingleFace(
           videoRef,
           new faceapi.TinyFaceDetectorOptions({
             inputSize: 224,
-            scoreThreshold: 0.5,
+            scoreThreshold: 0.3,
           })
         )
         .withFaceLandmarks();
       console.log("FPS: ", 1000 / (performance.now() - t0));
-      const landmarks = detections?.landmarks ?? {};
-      const mouthTop = landmarks?.positions[62];
-      const mouthBottom = landmarks?.positions[66];
-      const mouthDistance = mouthBottom?.y - mouthTop?.y;
 
-      if (mouthDistance > 30) {
-        if (startTime == null) {
-          startTime = Date.now();
-        }
-        const elapsedTime = (Date.now() - startTime) / 1000;
-        console.log("Remaining time: ",elapsedTime);
+      if (!!detections) {
+        const landmarks = detections?.landmarks;
+        const mouthTop = landmarks?.positions[62];
+        const mouthBottom = landmarks?.positions[66];
+        const mouthDistance = mouthBottom?.y - mouthTop?.y;
 
-        if (elapsedTime >= 2) {
-          videoRef.pause();
-          return detections;
+        if (mouthDistance > 30) {
+          if (startTime == null) {
+            startTime = Date.now();
+          }
+          const elapsedTime = (Date.now() - startTime) / 1000;
+          console.log("Remaining time: ", elapsedTime);
+
+          if (elapsedTime >= 2) {
+            videoRef.pause();
+            return detections;
+          }
         }
       }
       return new Promise((resolve) => {
