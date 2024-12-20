@@ -1,29 +1,37 @@
-# Rsbuild Project
+# Face-api Explore
 
-## Setup
+## About Faceapi
 
-Install the dependencies:
+Face-api.js is library to detect face and face landmark. This library support browser and NodeJS. Built on top of Tensorflow.js (tfjs).
 
-```bash
-pnpm install
-```
+## Background
+Currently, we use [justadudewhohacks/face-api.js](https://github.com/justadudewhohacks/face-api.js) that use `webgl` backend. Unfortunately, we get complaint by client about our warming up model time that take too long on mobile device. Sometimes this warmup process also blocking painting/rendering that cause zoom-in and zoom-out on mobile device (need further diagnose).
 
-## Get Started
+## Benchmarks
+This benchmarks show two different library [justadudewhohacks/face-api.js](https://github.com/justadudewhohacks/face-api.js) and [vladmandic/face-api](https://github.com/vladmandic/face-api) for same models `tinyfacedetector`.
 
-Start the dev server:
+### Bundle size
 
-```bash
-pnpm dev
-```
+|  | Bundle size | On Disk |
+| :---         |     :---:      |  :---: |
+| justadudewhohacks/face-api.js   | 799 KB     | 1.3 MB    |
+| vladmandic/face-api webgl     | 1.28 MB       | 2 MB     |
+| vladmandic/face-api wasm     | 4.22 MB       | 4.1 MB     |
 
-Build the app for production:
+### Performance
 
-```bash
-pnpm build
-```
+|  | Desktop | Mobile |
+| :---         |     :---:      |  :---: |
+| justadudewhohacks/face-api.js   | 12     | 15    |
+| vladmandic/face-api webgl     | 15       | 23     |
+| vladmandic/face-api wasm     | 22       | 28     |
 
-Preview the production build locally:
+### Warmup
 
-```bash
-pnpm preview
-```
+|  | Desktop | Mobile |
+| :---         |     :---:      |  :---: |
+| justadudewhohacks/face-api.js   | -     | -    |
+| vladmandic/face-api webgl     | -       | -     |
+| vladmandic/face-api wasm     | -       | -     |
+
+* Need further detection method
