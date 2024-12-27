@@ -1,7 +1,5 @@
 import { onMount } from "solid-js";
-import * as faceapi from "@vladmandic/face-api/dist/face-api.esm-nobundle.js";
-import * as tf from "@tensorflow/tfjs";
-import * as wasm from "@tensorflow/tfjs-backend-wasm";
+import * as faceapi from "@vladmandic/face-api";
 
 import "./App.css";
 
@@ -14,11 +12,9 @@ const App = () => {
   onMount(() => {
     (async () => {
       warmupT0 = new Date();
-      wasm.setWasmPaths(
-        "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/"
-      );
-      await tf.setBackend("wasm");
-      await tf.ready();
+      faceapi.tf.setWasmPaths("wasm/");
+      await faceapi.tf.setBackend("wasm");
+      await faceapi.tf.ready();
 
       await loadModel();
       await webCam();
@@ -33,7 +29,7 @@ const App = () => {
       faceapi.nets.tinyFaceDetector.loadFromUri("./models"),
       faceapi.nets.faceLandmark68Net.loadFromUri("./models"),
     ]);
-    console.log("Backend: ", faceapi.tf.getBackend(), tf.getBackend());
+    console.log("Backend: ", faceapi.tf.getBackend());
   }
 
   async function webCam() {
