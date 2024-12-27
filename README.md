@@ -16,7 +16,7 @@ This benchmarks show two different library [justadudewhohacks/face-api.js](https
 | :---         |     :---:      |  :---: |
 | justadudewhohacks/face-api.js   | 799 KB     | 1.3 MB    |
 | vladmandic/face-api webgl     | 1.28 MB       | 2 MB     |
-| vladmandic/face-api wasm     | 4.22 MB       | 4.1 MB     |
+| vladmandic/face-api wasm     | 1.28 MB       | 3 MB (include wasm file)    |
 
 ### Performance
 
