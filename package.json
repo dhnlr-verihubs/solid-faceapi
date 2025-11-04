@@ -15,7 +15,7 @@
   "devDependencies": {
     "vite": "^6.4.1",
     "vite-plugin-solid": "^2.11.10"
-  }
+  },
   "pnpm": {
     "overrides": {
       "node-fetch@<2.6.7": ">=2.6.7"
